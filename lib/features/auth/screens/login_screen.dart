@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 import '../../feed/screens/feed_screen.dart';
@@ -110,7 +111,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // Log In Button
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              // Save login state so user doesn't need to login again
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('isLoggedIn', true);
+                              
+                              if (!context.mounted) return;
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: (_) => const FeedScreen()),
                               );

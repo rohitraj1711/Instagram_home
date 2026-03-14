@@ -55,7 +55,7 @@ class StoryList extends ConsumerWidget {
               },
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF1F1F1)),
+          Divider(height: 1, thickness: 0.3, color: Theme.of(context).dividerColor),
         ],
       ),
     );
