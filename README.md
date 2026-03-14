@@ -98,6 +98,23 @@ flutter run -v
 flutter run -d emulator-5554
 ```
 
+### ⚡ Quick Start - Download Pre-built APK
+
+Don't want to build from source? Download the latest pre-built release:
+
+1. **Go to [Releases](https://github.com/rohitraj1711/Instagram_home/releases)**
+2. **Download** `app-release.apk` from the latest release
+3. **Transfer to your Android phone** (USB or cloud storage)
+4. **Install** - Tap the APK file and grant permissions
+5. **Enable "Install from Unknown Sources"** if prompted on your device
+
+**Requirements:**
+- Android 6.0 (API 21) or higher
+- Approximately 50MB free storage
+- Internet connection for loading feed images
+
+---
+
 ### Available Commands
 ```bash
 # Clean build cache
