@@ -98,6 +98,24 @@ flutter run -v
 flutter run -d emulator-5554
 ```
 
+### 🎥 Demo Video
+
+Check out the **demo.mp4** file included in this repository for a complete walkthrough of the application features:
+
+- ✅ Shimmer loading animations
+- ✅ Smooth infinite scrolling with pagination
+- ✅ Pinch-to-zoom gesture interaction
+- ✅ Like and Save toggle animations
+- ✅ Pull-to-refresh functionality
+- ✅ Light and Dark mode switching
+
+**To watch the demo:**
+1. Clone the repository
+2. Find `demo.mp4` in the project root
+3. Play the video to see all features in action
+
+---
+
 ### ⚡ Quick Start - Download Pre-built APK
 
 Don't want to build from source? Download the latest pre-built release:
