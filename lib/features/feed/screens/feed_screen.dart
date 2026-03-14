@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../providers/feed_provider.dart';
 import '../widgets/post_card.dart';
 import '../widgets/story_list.dart';
 import '../widgets/shimmer_post.dart';
 import '../../settings/screens/profile_screen.dart';
+import '../../chat/screens/chat_screen.dart';
+import '../../search/screens/search_screen.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
@@ -69,9 +71,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         index: _selectedIndex,
         children: [
           _buildHomeFeedTab(context),
-          const Center(child: Text("Search Tab")),
-          const Center(child: Text("Add Post Tab")),
           const Center(child: Text("Reels Tab")),
+          const ChatScreen(),
+          const SearchScreen(),
           const ProfileScreen(), // Tab 4 handles Profile Layout & Settings
         ],
       ),
@@ -94,23 +96,74 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           onTap: _onItemTapped,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(_selectedIndex == 0 ? Icons.home : Icons.home_outlined),
+              icon: Icon(
+                _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
+                size: 30,
+              ),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(_selectedIndex == 1 ? Icons.search : Icons.search_outlined, size: 28),
-              label: 'Search',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.add_box_outlined),
-              label: 'Add',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(_selectedIndex == 3 ? Icons.ondemand_video : Icons.ondemand_video_outlined),
+              icon: Icon(
+                _selectedIndex == 1 ? Icons.smart_display : Icons.smart_display_outlined,
+                size: 28,
+              ),
               label: 'Reels',
             ),
             BottomNavigationBarItem(
-              icon: Icon(_selectedIndex == 4 ? Icons.person : Icons.person_outline),
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Transform.rotate(
+                    angle: -0.35,
+                    child: Icon(
+                      _selectedIndex == 2 ? Icons.send : Icons.send_outlined,
+                      size: 26,
+                    ),
+                  ),
+                  Positioned(
+                    top: -2,
+                    right: -4,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 1.5),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              label: 'Messages',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                _selectedIndex == 3 ? Icons.search : Icons.search_outlined,
+                size: 30,
+              ),
+              label: 'Search',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _selectedIndex == 4
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: const CircleAvatar(
+                  radius: 12,
+                  backgroundImage: CachedNetworkImageProvider(
+                    'https://i.pravatar.cc/100?u=itz_rohit_nav',
+                  ),
+                ),
+              ),
               label: 'Profile',
             ),
           ],
@@ -124,46 +177,41 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: Text(
-        'Instagram',
-        style: Theme.of(context).appBarTheme.titleTextStyle,
+      leading: IconButton(
+        icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color, size: 28),
+        onPressed: () {},
+      ),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Instagram',
+            style: Theme.of(context).appBarTheme.titleTextStyle,
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.keyboard_arrow_down, color: Theme.of(context).iconTheme.color),
+        ],
       ),
       actions: [
-        IconButton(
-          icon: Icon(Icons.favorite_border, color: Theme.of(context).iconTheme.color, size: 28),
-          onPressed: () {},
-        ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: Icon(Icons.maps_ugc_outlined, color: Theme.of(context).iconTheme.color, size: 28),
+                icon: Icon(Icons.favorite_border, color: Theme.of(context).iconTheme.color, size: 28),
                 onPressed: () {},
               ),
               Positioned(
                 top: 10,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.all(2),
+                  width: 10,
+                  height: 10,
                   decoration: BoxDecoration(
                     color: Colors.red,
                     shape: BoxShape.circle,
                     border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 2),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 14,
-                    minHeight: 14,
-                  ),
-                  child: const Text(
-                    '2',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               )
@@ -189,8 +237,13 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             child: StoryList(),
           ),
 
-          // Shimmer effect loading logic when 0 posts exist
-          if (feedState.posts.isEmpty && feedState.isLoading)
+          // Shimmer effect: full shimmer layout during initial 1.5s load
+          if (feedState.posts.isEmpty && feedState.isLoading) ...[
+            // Shimmer stories tray
+            const SliverToBoxAdapter(
+              child: ShimmerStoryList(),
+            ),
+            // Shimmer post cards
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -198,7 +251,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 },
                 childCount: 3,
               ),
-            )
+            ),
+          ]
           // Error handling fallback State
           else if (feedState.posts.isEmpty && feedState.error != null)
             SliverFillRemaining(
